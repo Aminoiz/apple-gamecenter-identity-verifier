@@ -16,6 +16,7 @@ const testToken = {
   bundleId: 'cloud.xtralife.gamecenterauth',
 };
 
+jest.useFakeTimers();
 it('should validate', done => {
   function callback(error: any, data: string) {
     if (error) {
@@ -31,4 +32,5 @@ it('should validate', done => {
   }
 
   verify(testToken, callback);
+  jest.runAllTimers();
 });
