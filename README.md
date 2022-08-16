@@ -63,10 +63,6 @@ verify(identity, function (err, token) {
 ```bash
 npm test
 ```
-or
-```bash
-npm prepare
-```
 
 ## Contributing
 

@@ -51,29 +51,33 @@ function getAppleCertificate(publicKeyUrl: string, callback: Function) {
     return callback(null, cache[publicKeyUrl]);
   }
 
-  https.get(publicKeyUrl, (res) => {
-    var data = '';
-    res.on('data', (chunk) => {
-      data += chunk.toString('base64');
-    });
-    res.on('end', () => {
-      var cert = convertX509CertToPEM(data);
+  https
+    .get(publicKeyUrl, (res) => {
+      var data = '';
+      res.on('data', (chunk) => {
+        data += chunk.toString('base64');
+      });
+      res.on('end', () => {
+        var cert = convertX509CertToPEM(data);
 
-      if (res.headers['cache-control']) { // if there's a cache-control header
-        var expire = res.headers['cache-control'].match(/max-age=([0-9]+)/);
-        if (expire) { // if we got max-age
-          cache[publicKeyUrl] = cert; // save in cache
-          // we'll expire the cache entry later, as per max-age
-          setTimeout(() => {
-            delete cache[publicKeyUrl];
-          }, parseInt(expire[1], 10) * 1000);
+        if (res.headers['cache-control']) {
+          // if there's a cache-control header
+          var expire = res.headers['cache-control'].match(/max-age=([0-9]+)/);
+          if (expire) {
+            // if we got max-age
+            cache[publicKeyUrl] = cert; // save in cache
+            // we'll expire the cache entry later, as per max-age
+            setTimeout(() => {
+              delete cache[publicKeyUrl];
+            }, parseInt(expire[1], 10) * 1000);
+          }
         }
-      }
-      callback(null, cert);
+        callback(null, cert);
+      });
+    })
+    .on('error', (e) => {
+      callback(e);
     });
-  }).on('error', (e) => {
-    callback(e);
-  });
 }
 
 function convertX509CertToPEM(X509Cert: string) {
